@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiServer = 'https://todos.d.simpleinfo.tw/api'
-const apiKey = '2dd86b5f-2e51-4181-aed4-8ccccf90c31a'
+const apiKey = process.env.APIKEY || ''
 
 const createRequest = axios.create({
   baseURL: apiServer,
