@@ -9,13 +9,11 @@ function App() {
   const [createMode, setCreateMode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [newTodo, setNewTodo] = useState('')
-
-  const [isDoneData, setIsDoneData] = useState([])
+  // const [isDoneData, setIsDoneData] = useState([])
 
   const fetchData = async () => {
     try {
       const dataResponse = await fetch.get()
-
       setIsDoneData(() => dataResponse.data.filter((i) => i.is_done))
       setData(dataResponse.data)
       setIsLoading(false)
@@ -25,33 +23,33 @@ function App() {
   }
 
   const createData = async (newTodo) => {
-    setNewTodo('')
-    const response = await fetch.post({ content: newTodo })
-
-    fetchData()
+    try {
+      const response = await fetch.post({ content: newTodo })
+      const successStatus = 200 || 201 || 202
+      if (response.status !== successStatus) {
+        throw error
+      }
+      setNewTodo('')
+      fetchData()
+    } catch {
+      console.error('Create Error')
+    }
   }
 
   const updateData = async (data) => {
     const { isDone, todoId, content } = data
-    const response = await fetch.put(todoId, { is_done: !isDone, content })
-
+    await fetch.put(todoId, { content, is_done: isDone })
     fetchData()
   }
 
-  const removeData = async (todoId) => {
+  const deleteData = async (todoId) => {
     const response = await fetch.delete(todoId)
     fetchData()
   }
 
   useEffect(() => {
     fetchData()
-
-    console.log(`createMode`, createMode)
   }, [])
-
-  useEffect(() => {
-    console.log(`isDoneData`, isDoneData)
-  }, [isDoneData])
 
   return (
     <div className='main-container'>
@@ -70,6 +68,7 @@ function App() {
                   isDone={false}
                   content={content}
                   updateData={updateData}
+                  deleteData={deleteData}
                 />
               ) : null
             })}
@@ -86,28 +85,23 @@ function App() {
                   isDone={true}
                   content={content}
                   updateData={updateData}
+                  deleteData={deleteData}
                 />
               ) : null
             })}
           </div>
 
           <TodoItem
-            todoId={null}
-            isDone={false}
             content={newTodo}
             hidden={!createMode}
+            mode='create'
+            setNewTodo={setNewTodo}
           />
 
           <div className='buttons-control'>
             {createMode ? (
               <>
-                <Button
-                  status='cancel'
-                  onClick={() => {
-                    setNewTodo('')
-                    setCreateMode(false)
-                  }}
-                />
+                <Button status='cancel' onClick={() => setCreateMode(false)} />
                 <Button
                   status='confirm'
                   onClick={() => {

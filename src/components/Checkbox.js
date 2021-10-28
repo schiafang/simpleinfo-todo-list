@@ -6,8 +6,6 @@ const Checkbox = ({ isDone, updateDataStatus }) => {
 
   useEffect(() => {
     setstate(isDone)
-
-    console.log(`isDone`, isDone)
   }, [isDone])
   return (
     <div>
@@ -17,9 +15,8 @@ const Checkbox = ({ isDone, updateDataStatus }) => {
         defaultValue={state}
         checked={state}
         onChange={(e) => {
-          console.log(`e.target.checked`, e.target.checked)
-          // setstate((pre) => !pre)
-          // updateDataStatus()
+          // console.log(`e.target.checked`, e.target.checked)
+          return null
         }}
       ></input>
       <label className='checkbox-label' onClick={() => updateDataStatus()} />
