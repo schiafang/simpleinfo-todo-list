@@ -1,20 +1,43 @@
 import './App.css'
-import TodoItem from './components/TodoItem'
 import { useEffect, useState } from 'react'
-import fetch from './utilities/fetch'
-import Button from './components/Button'
+import TodoItem from '../components/TodoItem'
+import Button from '../components/Button'
+import fetch from '../utilities/fetch'
 
 function App() {
   const [data, setData] = useState([])
   const [createMode, setCreateMode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [newTodo, setNewTodo] = useState('')
-  // const [isDoneData, setIsDoneData] = useState([])
+
+  function countDataLength(key) {
+    const count = data.reduce(
+      (pre, cur) => {
+        if (cur.is_done) {
+          pre['done']++
+        } else {
+          pre['todo']++
+        }
+        return pre
+      },
+      { done: 0, todo: 0 }
+    )
+    return count[key]
+  }
+
+  function updateStateData(modifyData) {
+    const newData = data.map((i) => {
+      if (i.id === modifyData.id) {
+        return modifyData
+      }
+      return i
+    })
+    setData(newData)
+  }
 
   const fetchData = async () => {
     try {
       const dataResponse = await fetch.get()
-      setIsDoneData(() => dataResponse.data.filter((i) => i.is_done))
       setData(dataResponse.data)
       setIsLoading(false)
     } catch (e) {
@@ -23,33 +46,61 @@ function App() {
   }
 
   const createData = async (newTodo) => {
+    if (!newTodo) return
     try {
       const response = await fetch.post({ content: newTodo })
-      const successStatus = 200 || 201 || 202
-      if (response.status !== successStatus) {
-        throw error
+      if (response.status === 200 || response.status === 201) {
+        setNewTodo('')
+        setCreateMode(false)
+        let newData = Array.prototype.slice.call(data)
+        newData.unshift(response.data)
+        setData(newData)
+        //卷動到上方
+      } else {
+        throw 'Create Error'
       }
-      setNewTodo('')
-      fetchData()
-    } catch {
-      console.error('Create Error')
+    } catch (e) {
+      console.error(e)
     }
   }
 
   const updateData = async (data) => {
     const { isDone, todoId, content } = data
-    await fetch.put(todoId, { content, is_done: isDone })
-    fetchData()
+    if (!content || !todoId) return
+    try {
+      const response = await fetch.put(todoId, { content, is_done: isDone })
+      if (response.status === 200 || response.status === 201) {
+        updateStateData(response.data)
+      } else {
+        throw 'Update Error'
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const deleteData = async (todoId) => {
-    const response = await fetch.delete(todoId)
-    fetchData()
+    if (!todoId) return
+    try {
+      const response = await fetch.delete(todoId)
+      if (response.status === 200 || response.status === 201) {
+        let newData = data.filter((i) => i.id !== todoId)
+        setData(newData)
+      } else {
+        throw 'Delete Error'
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  useEffect(() => {
+    countDataLength('todo')
+  }, [data])
 
   return (
     <div className='main-container'>
@@ -58,7 +109,10 @@ function App() {
       {isLoading ? null : (
         <>
           <div className='data-group'>
-            <div className='group-title'>未完成待辦({isDoneData.length})</div>
+            <div className='group-title'>
+              未完成待辦({countDataLength('todo')})
+            </div>
+
             {data.map((item) => {
               const { id, is_done, content } = item
               return !is_done ? (
@@ -75,7 +129,9 @@ function App() {
           </div>
 
           <div className='data-group'>
-            <div className='group-title'>已完成待辦(20)</div>
+            <div className='group-title'>
+              已完成待辦({countDataLength('done')})
+            </div>
             {data.map((item) => {
               const { id, is_done, content } = item
               return is_done ? (
@@ -96,6 +152,7 @@ function App() {
             hidden={!createMode}
             mode='create'
             setNewTodo={setNewTodo}
+            createData={() => createData(newTodo)}
           />
 
           <div className='buttons-control'>

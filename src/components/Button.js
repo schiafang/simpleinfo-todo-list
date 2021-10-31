@@ -1,10 +1,10 @@
-import './button.css'
+import * as S from './styles/button'
 
 const Button = ({ status = 'create', onClick }) => {
   return (
-    <div className='button-wrapper'>
-      <button className={status} onClick={onClick} />
-    </div>
+    <S.ButtonWrapper>
+      <S.Button className={status} onClick={onClick} />
+    </S.ButtonWrapper>
   )
 }
 

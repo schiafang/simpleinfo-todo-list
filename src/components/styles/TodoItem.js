@@ -9,7 +9,8 @@ export const TodoItemBackground = styled.div`
   box-shadow: 0px 3px 8px #97767626;
   margin-bottom: 24px;
   position: relative;
-  opacity: ${({ hidden }) => (hidden ? 1 : 1)};
+  opacity: ${({ isHidden }) => (isHidden ? 0 : 1)};
+  transition: opacity 0.3s ease-in-out;
 `
 
 export const TodoItemContainer = styled.div`
@@ -33,15 +34,22 @@ export const TodoItemContainer = styled.div`
     display: flex;
     align-items: center;
   }
+`
 
-  .text-content textarea {
-    line-height: 1;
-    text-align: left;
-    color: #626262;
-    width: 100%;
-    height: auto;
-    background-color: transparent;
-  }
+export const TodoItemTextArea = styled.textarea`
+  line-height: 27px;
+  letter-spacing: 1.25px;
+  text-align: left;
+  color: #626262;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  padding-right: 24px;
+  background-color: transparent;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
 `
 
 export const CloseIcon = styled.div`

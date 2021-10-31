@@ -1,4 +1,4 @@
-import './checkbox.css'
+import * as S from './styles/checkbox'
 import { useState, useEffect } from 'react'
 
 const Checkbox = ({ isDone, updateDataStatus }) => {
@@ -9,7 +9,7 @@ const Checkbox = ({ isDone, updateDataStatus }) => {
   }, [isDone])
   return (
     <div>
-      <input
+      <S.CheckInput
         className='checkbox-input'
         type='checkbox'
         defaultValue={state}
@@ -18,8 +18,11 @@ const Checkbox = ({ isDone, updateDataStatus }) => {
           // console.log(`e.target.checked`, e.target.checked)
           return null
         }}
-      ></input>
-      <label className='checkbox-label' onClick={() => updateDataStatus()} />
+      />
+      <S.CheckLabel
+        className='checkbox-label'
+        onClick={() => updateDataStatus()}
+      />
     </div>
   )
 }
